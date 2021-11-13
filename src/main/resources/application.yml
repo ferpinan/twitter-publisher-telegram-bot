@@ -1,0 +1,12 @@
+telegram:
+    bot:
+        username:
+        token:
+        password:
+twitter:
+    consumerKey:
+        public:
+        secret:
+    accessToken:
+        public:
+        secret:
