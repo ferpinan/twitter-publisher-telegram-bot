@@ -13,7 +13,7 @@
 #######################################
 #FROM openjdk:17-jdk-slim
 
-FROM eclipse-temurin:latest
+FROM arm32v7/eclipse-temurin:17.0.1_12-jdk-focal
 
 COPY ./target/twitter-bot.jar /home/twitter-bot.jar
 
