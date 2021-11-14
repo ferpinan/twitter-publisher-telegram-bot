@@ -60,5 +60,4 @@ jobs:
         with:
           context: .
           push: true
-          platforms: linux/amd64,linux/arm/v7
           tags: ferpinan/twitter-publisher-telegram-bot:latest, ferpinan/twitter-publisher-telegram-bot:${{ steps.get-version.outputs.version }}
