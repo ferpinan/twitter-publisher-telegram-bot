@@ -1,12 +1,12 @@
 # pull official base image
-FROM maven:3.8.3-openjdk-17-slim AS builder
-
-# set working directory
-WORKDIR /app
-
-# Copies everything over to Docker environment
-COPY . /app
-RUN mvn clean install
+#FROM maven:3.8.3-openjdk-17-slim AS builder
+#
+## set working directory
+#WORKDIR /app
+#
+## Copies everything over to Docker environment
+#COPY . /app
+#RUN mvn clean install
 
 
 #Stage 2
