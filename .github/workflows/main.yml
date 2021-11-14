@@ -29,6 +29,11 @@ jobs:
       - name: Show version number
         run: echo "Version is ${{ steps.get-version.outputs.version }}"
         
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '17'
+        
       - name: Setup Maven
         # You may pin to the exact commit or the version.
         # uses: stCarolas/setup-maven@7060d72b50fbf2389a16d6f66a9c7d4d9ece5d36
