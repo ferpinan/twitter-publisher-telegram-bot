@@ -15,7 +15,6 @@
 
 FROM eclipse-temurin:latest
 
-RUN mkdir /home/videos && touch /home/videos/testfile.html
-COPY --from=builder /app/target/twitter-bot.jar /home/twitter-bot.jar
+COPY ./target/twitter-bot.jar /home/twitter-bot.jar
 
 CMD ["java", "-jar", "/home/twitter-bot.jar"]
