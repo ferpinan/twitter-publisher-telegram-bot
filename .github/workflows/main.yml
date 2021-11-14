@@ -24,7 +24,7 @@ jobs:
           # Otherwise, uses the default branch.
           #ref: 'master'
       - id: get-version
-        uses: jactions/maven-version@v1
+        uses: jactions/maven-version@v1.0.0
 
       - name: Show version number
         run: echo "Version is ${{ steps.get-version.outputs.version }}"
