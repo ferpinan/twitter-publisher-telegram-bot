@@ -29,6 +29,14 @@ jobs:
       - name: Show version number
         run: echo "Version is ${{ steps.get-version.outputs.version }}"
         
+      - name: Setup Maven
+        # You may pin to the exact commit or the version.
+        # uses: stCarolas/setup-maven@7060d72b50fbf2389a16d6f66a9c7d4d9ece5d36
+        uses: stCarolas/setup-maven@v4.2
+
+      - name: Build jar
+        run: mvn clean package
+        
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
