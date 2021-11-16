@@ -10,3 +10,5 @@ twitter:
     accessToken:
         public:
         secret:
+files:
+    directory: /home/twitter-bot/files

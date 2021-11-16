@@ -15,6 +15,7 @@
 
 FROM arm32v7/eclipse-temurin:17.0.1_12-jdk-focal
 
+RUN mkdir -p /home/twitter-bot/files
 RUN mkdir /opt/app
 COPY ./target/twitter-bot.jar /opt/app
 CMD ["java", "-jar", "/opt/app/twitter-bot.jar"]

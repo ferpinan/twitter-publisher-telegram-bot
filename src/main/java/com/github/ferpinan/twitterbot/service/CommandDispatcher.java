@@ -41,8 +41,6 @@ public class CommandDispatcher {
         State state = stateMap.get(userId);
         // Se obtiene el mensaje escrito por el usuario
         final String messageTextReceived = update.getMessage().getText();
-        List<PhotoSize> photo = update.getMessage().getPhoto();
-        System.out.println(photo);
 
         if (Objects.isNull(state) && !"/hasi".equals(messageTextReceived)) {
             notStartedCommand.execute(update, state);
