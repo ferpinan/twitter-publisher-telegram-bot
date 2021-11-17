@@ -14,8 +14,9 @@ public class NotStartedCommand implements Command{
     private final TelegramService telegramService;
 
     @Override
-    public void execute(Update update, State state) {
+    public State execute(Update update, State state) {
         Long chatId = update.getMessage().getChatId();
         telegramService.sendMessage(chatId, "Hasteko \"/hasi\" komandoa idatzi behar duzu.");
+        return state;
     }
 }

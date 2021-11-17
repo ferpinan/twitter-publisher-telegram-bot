@@ -19,7 +19,7 @@ public class FinishCommand implements Command{
     private final TwitterService twitterService;
 
     @Override
-    public void execute(Update update, State state) {
+    public State execute(Update update, State state) {
         Long chatId = update.getMessage().getChatId();
         telegramService.sendMessage(chatId, "Mezua txiokatu da!");
 
@@ -30,5 +30,6 @@ public class FinishCommand implements Command{
         }
 
         state.update(StateEnum.FINISHED);
+        return state;
     }
 }

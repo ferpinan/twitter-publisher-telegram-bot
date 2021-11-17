@@ -20,7 +20,7 @@ public class PasswordCheckerCommand implements Command {
     private String pasahitza;
 
     @Override
-    public void execute(Update update, State state) {
+    public State execute(Update update, State state) {
         Long chatId = update.getMessage().getChatId();
         String message = update.getMessage().getText();
         if (pasahitza.equals(message)) {
@@ -31,5 +31,6 @@ public class PasswordCheckerCommand implements Command {
             telegramService.sendMessage(chatId, "Pasahitza ez zuzena da!");
             state.update(StateEnum.PASSWORD_KO);
         }
+        return state;
     }
 }

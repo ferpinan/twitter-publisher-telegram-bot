@@ -21,7 +21,7 @@ public class DocumentReaderCommand implements Command{
     private final MessageFactory messageFactory;
 
     @Override
-    public void execute(Update update, State state) {
+    public State execute(Update update, State state) {
         Long chatId = update.getMessage().getChatId();
 
         Document document1 = update.getMessage().getDocument();
@@ -35,5 +35,6 @@ public class DocumentReaderCommand implements Command{
         telegramService.sendMessage(chatId, "Gorde da mezua.");
         telegramService.sendMessage(chatId, messageFactory.zerGehitu(state));
         state.update(StateEnum.AWAIT_COMMAND);
+        return state;
     }
 }

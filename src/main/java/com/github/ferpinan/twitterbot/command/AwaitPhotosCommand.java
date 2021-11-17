@@ -15,9 +15,10 @@ public class AwaitPhotosCommand implements Command{
     private final TelegramService telegramService;
 
     @Override
-    public void execute(Update update, State state) {
+    public State execute(Update update, State state) {
         Long chatId = update.getMessage().getChatId();
         telegramService.sendMessage(chatId, "Bidali gehienez 4 argazki.");
         state.update(StateEnum.AWAIT_PHOTOS);
+        return state;
     }
 }
