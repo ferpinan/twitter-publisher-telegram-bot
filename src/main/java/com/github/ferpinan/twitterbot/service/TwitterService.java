@@ -26,8 +26,8 @@ public class TwitterService {
             statusUpdate.setMediaIds(photoIdArray);
         }
 
-        if(state.getPhotos().isEmpty() && state.getDocument()!=null){
-            Long gifMediaId = uploadDocument(state.getDocument());
+        if(state.getPhotos().isEmpty() && state.getGif()!=null){
+            Long gifMediaId = uploadDocument(state.getGif());
             statusUpdate.setMediaIds(gifMediaId);
         }
 
@@ -46,7 +46,7 @@ public class TwitterService {
         long[] photoIdArray = new long[photoList.size()];
         for (int i=0; i<photoList.size(); i++) {
             File file = photoList.get(i);
-            UploadedMedia media = null;
+            UploadedMedia media;
             if (file.length() > 1000000) {//did this because for files above 1mb you need to use chunked uploading
                 media = twitter.uploadMediaChunked(file.getName(), new BufferedInputStream(new FileInputStream(file)));
             } else {

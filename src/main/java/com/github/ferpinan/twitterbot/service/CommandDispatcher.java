@@ -1,17 +1,23 @@
 package com.github.ferpinan.twitterbot.service;
 
-import com.github.ferpinan.twitterbot.command.*;
+import com.github.ferpinan.twitterbot.command.AwaitGifCommand;
+import com.github.ferpinan.twitterbot.command.AwaitPhotosCommand;
+import com.github.ferpinan.twitterbot.command.AwaitTextCommand;
+import com.github.ferpinan.twitterbot.command.GifReaderCommand;
+import com.github.ferpinan.twitterbot.command.FinishCommand;
+import com.github.ferpinan.twitterbot.command.MessageReaderCommand;
+import com.github.ferpinan.twitterbot.command.NotStartedCommand;
+import com.github.ferpinan.twitterbot.command.PasswordCheckerCommand;
+import com.github.ferpinan.twitterbot.command.PhotoReaderCommand;
+import com.github.ferpinan.twitterbot.command.StartCommand;
+import com.github.ferpinan.twitterbot.dto.TelegramUpdate;
 import com.github.ferpinan.twitterbot.state.State;
 import com.github.ferpinan.twitterbot.state.StateEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.PhotoSize;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -22,7 +28,7 @@ public class CommandDispatcher {
     private final PasswordCheckerCommand passwordCheckerCommand;
     private final FinishCommand finishCommand;
     private final MessageReaderCommand messageReaderCommand;
-    private final DocumentReaderCommand documentReaderCommand;
+    private final GifReaderCommand gifReaderCommand;
     private final PhotoReaderCommand photoReaderCommand;
     private final AwaitTextCommand awaitTextCommand;
     private final AwaitGifCommand awaitGifCommand;
@@ -30,26 +36,22 @@ public class CommandDispatcher {
 
     private Map<Long, State> stateMap;
 
-    public void mainMethod(Update update) {
+    public void mainMethod(TelegramUpdate update) {
         // Esta función se invocará cuando nuestro bot reciba un mensaje
 
-        if(stateMap==null){
-            stateMap = new HashMap<>();
-        }
-
         Long userId = update.getMessage().getFrom().getId();
-        State state = stateMap.get(userId);
+
+        State state = initState(userId);
+
         // Se obtiene el mensaje escrito por el usuario
         final String messageTextReceived = update.getMessage().getText();
 
-        if (Objects.isNull(state) && !"/hasi".equals(messageTextReceived)) {
+        if (state.is(StateEnum.NOT_STARTED) && !"/hasi".equals(messageTextReceived)) {
             notStartedCommand.execute(update, state);
             return;
         }
 
         if ("/hasi".equals(messageTextReceived)) {
-            state = new State();
-            stateMap.put(userId, state);
             startCommand.execute(update, state);
             return;
         }
@@ -76,7 +78,7 @@ public class CommandDispatcher {
 
         if (state.is(StateEnum.AWAIT_GIF)) {
             if (update.getMessage().getDocument() != null) {
-                documentReaderCommand.execute(update, state);
+                gifReaderCommand.execute(update, state);
             }
             return;
         }
@@ -94,7 +96,13 @@ public class CommandDispatcher {
             if (update.getMessage().getPhoto() != null && !update.getMessage().getPhoto().isEmpty()) {
                 photoReaderCommand.execute(update, state);
             }
-            return;
         }
+    }
+
+    private State initState(Long userId) {
+        if(stateMap==null){
+            stateMap = new HashMap<>();
+        }
+        return stateMap.computeIfAbsent(userId, k -> new State());
     }
 }

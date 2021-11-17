@@ -1,5 +1,6 @@
 package com.github.ferpinan.twitterbot.service;
 
+import com.github.ferpinan.twitterbot.dto.TelegramUpdate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -21,13 +22,21 @@ public class TelegramBotListener extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(final Update update) {
-        commandDispatcher.mainMethod(update);
+        TelegramUpdate telegramUpdate = (TelegramUpdate)update;
+        telegramUpdate.setIsLastUpdate(true);
+        commandDispatcher.mainMethod(telegramUpdate);
     }
 
     @Override
     public void onUpdatesReceived(List<Update> updates) {
-        for(Update update: updates) {
-            commandDispatcher.mainMethod(update);
+        List<TelegramUpdate> telegramUpdates = updates.stream().map(update -> {
+            TelegramUpdate telegramUpdate = (TelegramUpdate) update;
+            telegramUpdate.setIsLastUpdate(false);
+            return telegramUpdate;
+        }).toList();
+        telegramUpdates.get(telegramUpdates.size()-1).setIsLastUpdate(true);
+        for(TelegramUpdate telegramUpdate: telegramUpdates) {
+            commandDispatcher.mainMethod(telegramUpdate);
         }
     }
 

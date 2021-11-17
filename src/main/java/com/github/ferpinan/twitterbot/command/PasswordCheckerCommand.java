@@ -1,5 +1,6 @@
 package com.github.ferpinan.twitterbot.command;
 
+import com.github.ferpinan.twitterbot.dto.TelegramUpdate;
 import com.github.ferpinan.twitterbot.factory.MessageFactory;
 import com.github.ferpinan.twitterbot.service.TelegramService;
 import com.github.ferpinan.twitterbot.state.State;
@@ -7,7 +8,6 @@ import com.github.ferpinan.twitterbot.state.StateEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
 @RequiredArgsConstructor
@@ -20,7 +20,7 @@ public class PasswordCheckerCommand implements Command {
     private String pasahitza;
 
     @Override
-    public State execute(Update update, State state) {
+    public State execute(TelegramUpdate update, State state) {
         Long chatId = update.getMessage().getChatId();
         String message = update.getMessage().getText();
         if (pasahitza.equals(message)) {

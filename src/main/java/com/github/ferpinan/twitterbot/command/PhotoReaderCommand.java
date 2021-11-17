@@ -1,5 +1,6 @@
 package com.github.ferpinan.twitterbot.command;
 
+import com.github.ferpinan.twitterbot.dto.TelegramUpdate;
 import com.github.ferpinan.twitterbot.factory.MessageFactory;
 import com.github.ferpinan.twitterbot.service.TelegramService;
 import com.github.ferpinan.twitterbot.state.State;
@@ -22,7 +23,7 @@ public class PhotoReaderCommand implements Command{
     private final MessageFactory messageFactory;
 
     @Override
-    public State execute(Update update, State state) {
+    public State execute(TelegramUpdate update, State state) {
         Long chatId = update.getMessage().getChatId();
         List<PhotoSize> photo = update.getMessage().getPhoto();
         try {
