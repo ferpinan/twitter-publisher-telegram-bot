@@ -53,4 +53,8 @@ public class State {
     public StateEnum getCurrentState() {
         return currentState;
     }
+
+    public void setCurrentState(StateEnum currentState) {
+        this.currentState = currentState;
+    }
 }

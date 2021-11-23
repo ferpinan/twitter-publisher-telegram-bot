@@ -29,7 +29,7 @@ public class FinishCommand implements Command{
             e.printStackTrace();
         }
 
-        state.update(StateEnum.FINISHED);
+        state.update(StateEnum.NOT_STARTED);
         return state;
     }
 }

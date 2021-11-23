@@ -24,6 +24,11 @@ public class PhotoReaderCommand implements Command{
 
     @Override
     public State execute(TelegramUpdate update, State state) {
+
+        if (update.getMessage().getPhoto() == null || update.getMessage().getPhoto().isEmpty()) {
+            // TODO tratamiento especial
+            return state;
+        }
         Long chatId = update.getMessage().getChatId();
         List<PhotoSize> photo = update.getMessage().getPhoto();
         try {
