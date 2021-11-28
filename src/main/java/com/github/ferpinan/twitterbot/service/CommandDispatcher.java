@@ -1,17 +1,26 @@
 package com.github.ferpinan.twitterbot.service;
 
-import com.github.ferpinan.twitterbot.command.*;
+import com.github.ferpinan.twitterbot.command.AwaitGifCommand;
+import com.github.ferpinan.twitterbot.command.AwaitPhotosCommand;
+import com.github.ferpinan.twitterbot.command.AwaitTextCommand;
+import com.github.ferpinan.twitterbot.command.Command;
+import com.github.ferpinan.twitterbot.command.GifReaderCommand;
+import com.github.ferpinan.twitterbot.command.FinishCommand;
+import com.github.ferpinan.twitterbot.command.MessageReaderCommand;
+import com.github.ferpinan.twitterbot.command.NotStartedCommand;
+import com.github.ferpinan.twitterbot.command.PasswordCheckerCommand;
+import com.github.ferpinan.twitterbot.command.PhotoReaderCommand;
+import com.github.ferpinan.twitterbot.command.StartCommand;
+import com.github.ferpinan.twitterbot.dto.TelegramUpdate;
 import com.github.ferpinan.twitterbot.state.State;
 import com.github.ferpinan.twitterbot.state.StateEnum;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.PhotoSize;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -22,7 +31,7 @@ public class CommandDispatcher {
     private final PasswordCheckerCommand passwordCheckerCommand;
     private final FinishCommand finishCommand;
     private final MessageReaderCommand messageReaderCommand;
-    private final DocumentReaderCommand documentReaderCommand;
+    private final GifReaderCommand gifReaderCommand;
     private final PhotoReaderCommand photoReaderCommand;
     private final AwaitTextCommand awaitTextCommand;
     private final AwaitGifCommand awaitGifCommand;
@@ -30,71 +39,63 @@ public class CommandDispatcher {
 
     private Map<Long, State> stateMap;
 
-    public void mainMethod(Update update) {
+    private Map<StateEnum, Command> commandsMap;
+
+    public void mainMethod(TelegramUpdate telegramUpdate) {
+        commandsMap = Map.ofEntries(
+                new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.STARTED, startCommand),
+                new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.NOT_STARTED, notStartedCommand),
+                new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.AWAIT_PASSWORD, passwordCheckerCommand),
+                new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.PASSWORD_KO, passwordCheckerCommand),
+                new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.RECEIVED_FINISHED, finishCommand),
+                new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.RECEIVED_TEXT_COMMAND, awaitTextCommand),
+                new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.RECEIVED_GIF_COMMAND, awaitGifCommand),
+                new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.RECEIVED_PHOTOS_COMMAND, awaitPhotosCommand),
+                new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.AWAIT_TEXT, messageReaderCommand),
+                new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.AWAIT_GIF, gifReaderCommand),
+                new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.AWAIT_PHOTOS, photoReaderCommand)
+        );
         // Esta función se invocará cuando nuestro bot reciba un mensaje
 
+        Long userId = telegramUpdate.getUpdate().getMessage().getFrom().getId();
+
+        State state = initUserState(userId);
+
+        // Se obtiene el mensaje escrito por el usuario
+        final String messageTextReceived = telegramUpdate.getUpdate().getMessage().getText();
+
+        if(StringUtils.isNotEmpty(messageTextReceived) && messageTextReceived.startsWith("/")){
+            if (state.is(StateEnum.NOT_STARTED) && !"/hasi".equals(messageTextReceived)) {
+                state.setCurrentState(StateEnum.NOT_STARTED);
+            }else if(state.is(StateEnum.NOT_STARTED) && "/hasi".equals(messageTextReceived)){
+                state.setCurrentState(StateEnum.STARTED);
+            }else if ("/textua".equals(messageTextReceived) && state.is(StateEnum.AWAIT_COMMAND)) {
+                state.setCurrentState(StateEnum.RECEIVED_TEXT_COMMAND);
+            }else if ("/gif".equals(messageTextReceived) && state.is(StateEnum.AWAIT_COMMAND)) {
+                state.setCurrentState(StateEnum.RECEIVED_GIF_COMMAND);
+            }else if ("/argazkiak".equals(messageTextReceived) && state.is(StateEnum.AWAIT_COMMAND)) {
+                state.setCurrentState(StateEnum.RECEIVED_PHOTOS_COMMAND);
+            }else if ("/bukatu".equals(messageTextReceived) && state.is(StateEnum.AWAIT_COMMAND)) {
+                state.setCurrentState(StateEnum.RECEIVED_FINISHED);
+            }
+        }
+
+        Command command = commandsMap.get(state.getCurrentState());
+        if(command!=null) {
+            State newState = command.execute(telegramUpdate, state);
+            saveUserState(userId, newState);
+        }
+
+    }
+
+    protected State initUserState(Long userId) {
         if(stateMap==null){
             stateMap = new HashMap<>();
         }
+        return stateMap.computeIfAbsent(userId, k -> new State());
+    }
 
-        Long userId = update.getMessage().getFrom().getId();
-        State state = stateMap.get(userId);
-        // Se obtiene el mensaje escrito por el usuario
-        final String messageTextReceived = update.getMessage().getText();
-
-        if (Objects.isNull(state) && !"/hasi".equals(messageTextReceived)) {
-            notStartedCommand.execute(update, state);
-            return;
-        }
-
-        if ("/hasi".equals(messageTextReceived)) {
-            state = new State();
-            stateMap.put(userId, state);
-            startCommand.execute(update, state);
-            return;
-        }
-
-        if (state.is(StateEnum.STARTED) || state.is(StateEnum.PASSWORD_KO)) {
-            passwordCheckerCommand.execute(update, state);
-            return;
-        }
-
-        if ("/textua".equals(messageTextReceived) && state.is(StateEnum.AWAIT_COMMAND)) {
-            awaitTextCommand.execute(update, state);
-            return;
-        }
-
-        if (state.is(StateEnum.AWAIT_TEXT)) {
-            messageReaderCommand.execute(update, state);
-            return;
-        }
-
-        if ("/gif".equals(messageTextReceived) && state.is(StateEnum.AWAIT_COMMAND)) {
-            awaitGifCommand.execute(update, state);
-            return;
-        }
-
-        if (state.is(StateEnum.AWAIT_GIF)) {
-            if (update.getMessage().getDocument() != null) {
-                documentReaderCommand.execute(update, state);
-            }
-            return;
-        }
-
-        if ("/argazkiak".equals(messageTextReceived) && state.is(StateEnum.AWAIT_COMMAND)) {
-            awaitPhotosCommand.execute(update, state);
-            return;
-        }
-
-        if ("/bukatu".equals(messageTextReceived)) {
-            finishCommand.execute(update, state);
-        }
-
-        if (state.is(StateEnum.AWAIT_PHOTOS)) {
-            if (update.getMessage().getPhoto() != null && !update.getMessage().getPhoto().isEmpty()) {
-                photoReaderCommand.execute(update, state);
-            }
-            return;
-        }
+    protected void saveUserState(Long userId, State newState) {
+        stateMap.put(userId, newState);
     }
 }

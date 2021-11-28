@@ -1,12 +1,12 @@
 package com.github.ferpinan.twitterbot.command;
 
+import com.github.ferpinan.twitterbot.dto.TelegramUpdate;
 import com.github.ferpinan.twitterbot.service.TelegramService;
 import com.github.ferpinan.twitterbot.service.TwitterService;
 import com.github.ferpinan.twitterbot.state.State;
 import com.github.ferpinan.twitterbot.state.StateEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.Update;
 import twitter4j.TwitterException;
 
 import java.io.FileNotFoundException;
@@ -19,8 +19,8 @@ public class FinishCommand implements Command{
     private final TwitterService twitterService;
 
     @Override
-    public void execute(Update update, State state) {
-        Long chatId = update.getMessage().getChatId();
+    public State execute(TelegramUpdate telegramUpdate, State state) {
+        Long chatId = telegramUpdate.getUpdate().getMessage().getChatId();
         telegramService.sendMessage(chatId, "Mezua txiokatu da!");
 
         try {
@@ -29,6 +29,6 @@ public class FinishCommand implements Command{
             e.printStackTrace();
         }
 
-        state.update(StateEnum.FINISHED);
+        return new State();
     }
 }

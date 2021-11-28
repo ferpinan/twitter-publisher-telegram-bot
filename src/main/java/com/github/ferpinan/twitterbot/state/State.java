@@ -9,13 +9,13 @@ public class State {
     public State() {
         currentState = StateEnum.NOT_STARTED;
         message = null;
-        document = null;
+        gif = null;
         photos = new ArrayList<>();
     }
 
     private StateEnum currentState;
     private String message;
-    private File document;
+    private File gif;
     private List<File> photos;
 
     public void update(StateEnum newState){
@@ -34,12 +34,12 @@ public class State {
         return message;
     }
 
-    public void setDocument(File document){
-        this.document = document;
+    public void setGif(File gif){
+        this.gif = gif;
     }
 
-    public File getDocument() {
-        return document;
+    public File getGif() {
+        return gif;
     }
 
     public void addPhoto(File document){
@@ -48,5 +48,17 @@ public class State {
 
     public List<File> getPhotos() {
         return photos;
+    }
+
+    public boolean photoExists(File newFile){
+        return photos.stream().anyMatch(file -> file.getName().equals(newFile.getName()));
+    }
+
+    public StateEnum getCurrentState() {
+        return currentState;
+    }
+
+    public void setCurrentState(StateEnum currentState) {
+        this.currentState = currentState;
     }
 }
