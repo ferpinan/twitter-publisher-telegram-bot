@@ -16,9 +16,9 @@ public class MessageReaderCommand implements Command{
     private final MessageFactory messageFactory;
 
     @Override
-    public State execute(TelegramUpdate update, State state) {
-        Long chatId = update.getMessage().getChatId();
-        String message = update.getMessage().getText();
+    public State execute(TelegramUpdate telegramUpdate, State state) {
+        Long chatId = telegramUpdate.getUpdate().getMessage().getChatId();
+        String message = telegramUpdate.getUpdate().getMessage().getText();
         state.setMessage(message);
         telegramService.sendMessage(chatId, "Gorde da mezua.");
         telegramService.sendMessage(chatId, messageFactory.zerGehitu(state));

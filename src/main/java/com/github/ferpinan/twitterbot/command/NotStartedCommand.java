@@ -13,8 +13,8 @@ public class NotStartedCommand implements Command{
     private final TelegramService telegramService;
 
     @Override
-    public State execute(TelegramUpdate update, State state) {
-        Long chatId = update.getMessage().getChatId();
+    public State execute(TelegramUpdate telegramUpdate, State state) {
+        Long chatId = telegramUpdate.getUpdate().getMessage().getChatId();
         telegramService.sendMessage(chatId, "Hasteko \"/hasi\" komandoa idatzi behar duzu.");
         return state;
     }

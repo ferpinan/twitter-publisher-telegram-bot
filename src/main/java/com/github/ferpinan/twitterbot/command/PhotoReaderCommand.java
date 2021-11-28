@@ -8,6 +8,7 @@ import com.github.ferpinan.twitterbot.state.StateEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -33,31 +34,53 @@ public class PhotoReaderCommand implements Command{
     private final MessageFactory messageFactory;
 
     @Override
-    public State execute(TelegramUpdate update, State state) {
-        Long chatId = update.getMessage().getChatId();
+    public State execute(TelegramUpdate telegramUpdate, State state) {
+        Long chatId = telegramUpdate.getUpdate().getMessage().getChatId();
 
-        List<PhotoSize> photoDocument = update.getMessage().getPhoto();
-
-        if (photoDocument == null || photoDocument.isEmpty()) {
-            return finishCommand(state, chatId, PHOTOS_NOT_RECEIVED, update);
-        }
         if(Objects.nonNull(state.getGif())){
-            return finishCommand(state, chatId, GIF_ALREADY_UPLOADED, update);
+            return finishCommand(state, chatId, GIF_ALREADY_UPLOADED, telegramUpdate);
+        }
+
+        List<PhotoSize> photoSizeDocument = telegramUpdate.getUpdate().getMessage().getPhoto();
+        Document photoDocument = telegramUpdate.getUpdate().getMessage().getDocument();
+
+        if (isPhotoSizeDocumentEmpty(photoSizeDocument) && isPhotoDocumentEmpty(photoDocument)) {
+            return finishCommand(state, chatId, PHOTOS_NOT_RECEIVED, telegramUpdate);
         }
         try {
-            log.debug("FileId: " + photoDocument.get(3).getFileId());
-            File photoFile = telegramService.downloadFile(photoDocument.get(3).getFileId(), photoDocument.get(3).getFileUniqueId(), "jpg");
+            String fileId = null;
+            String fileUniqueId = null;
+
+            if(!isPhotoSizeDocumentEmpty(photoSizeDocument)) {
+                fileId = photoSizeDocument.get(3).getFileId();
+                log.debug("FileId: " + fileId);
+                fileUniqueId = photoSizeDocument.get(3).getFileUniqueId();
+            }else if(!isPhotoDocumentEmpty(photoDocument)){
+                fileId = photoDocument.getFileId();
+                log.debug("FileId: " + fileId);
+                fileUniqueId = photoDocument.getFileUniqueId();
+            }
+
+            File photoFile = telegramService.downloadFile(fileId, fileUniqueId, "jpg");
 
             if(state.photoExists(photoFile)){
-                return finishCommand(state, chatId, PHOTOS_ALREADY_UPLOADED, update);
+                return finishCommand(state, chatId, PHOTOS_ALREADY_UPLOADED, telegramUpdate);
             }
             state.addPhoto(photoFile);
         } catch (IOException e) {
             log.error(e.getMessage());
-            return finishCommand(state, chatId, ERROR, update);
+            return finishCommand(state, chatId, ERROR, telegramUpdate);
         }
 
-        return finishCommand(state, chatId, PHOTOS_SAVED, update);
+        return finishCommand(state, chatId, PHOTOS_SAVED, telegramUpdate);
+    }
+
+    private boolean isPhotoDocumentEmpty(Document photoDocument) {
+        return photoDocument ==null;
+    }
+
+    private boolean isPhotoSizeDocumentEmpty(List<PhotoSize> photoSizeDocument) {
+        return photoSizeDocument == null || photoSizeDocument.isEmpty();
     }
 
     private State finishCommand(State state, Long chatId, String message, TelegramUpdate update) {

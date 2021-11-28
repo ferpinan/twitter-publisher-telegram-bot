@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +42,9 @@ class GifReaderCommandTest {
     private MessageFactory messageFactory;
 
     @Mock
-    private TelegramUpdate update;
+    private TelegramUpdate telegramUpdate;
+    @Mock
+    private Update update;
     @Mock
     private Message message;
 
@@ -52,6 +55,7 @@ class GifReaderCommandTest {
         MockitoAnnotations.openMocks(this);
 
         state = new State();
+        when(telegramUpdate.getUpdate()).thenReturn(update);
         when(update.getMessage()).thenReturn(message);
         when(message.getChatId()).thenReturn(CHAT_ID);
         when(messageFactory.zerGehitu(any())).thenReturn(ZER_GEHITU_MSG);
@@ -65,7 +69,7 @@ class GifReaderCommandTest {
         File fileMock = mock(File.class);
         when(telegramService.downloadFile(any())).thenReturn(fileMock);
 
-        State result = gifReaderCommand.execute(update, state);
+        State result = gifReaderCommand.execute(telegramUpdate, state);
 
         verify(telegramService).downloadFile(FILE_ID);
         verify(telegramService).sendMessage(CHAT_ID, GIF_SAVED);
@@ -83,7 +87,7 @@ class GifReaderCommandTest {
     void shouldNotDownloadFileAndSendErrorMessagesWhenGifIsNull() {
         when(message.getDocument()).thenReturn(null);
 
-        State result = gifReaderCommand.execute(update, state);
+        State result = gifReaderCommand.execute(telegramUpdate, state);
 
         verify(telegramService).sendMessage(CHAT_ID, GIF_NOT_RECEIVED);
         verify(telegramService).sendMessage(CHAT_ID, ZER_GEHITU_MSG);
@@ -104,7 +108,7 @@ class GifReaderCommandTest {
         File fileMock = mock(File.class);
         state.setGif(fileMock);
 
-        State result = gifReaderCommand.execute(update, state);
+        State result = gifReaderCommand.execute(telegramUpdate, state);
 
         verify(telegramService).sendMessage(CHAT_ID, GIF_ALREADY_UPLOADED);
         verify(telegramService).sendMessage(CHAT_ID, ZER_GEHITU_MSG);
@@ -126,7 +130,7 @@ class GifReaderCommandTest {
         File fileMock = mock(File.class);
         state.addPhoto(fileMock);
 
-        State result = gifReaderCommand.execute(update, state);
+        State result = gifReaderCommand.execute(telegramUpdate, state);
 
         verify(telegramService).sendMessage(CHAT_ID, PHOTOS_ALREADY_UPLOADED);
         verify(telegramService).sendMessage(CHAT_ID, ZER_GEHITU_MSG);

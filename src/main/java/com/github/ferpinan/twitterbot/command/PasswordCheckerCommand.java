@@ -20,9 +20,9 @@ public class PasswordCheckerCommand implements Command {
     private String pasahitza;
 
     @Override
-    public State execute(TelegramUpdate update, State state) {
-        Long chatId = update.getMessage().getChatId();
-        String message = update.getMessage().getText();
+    public State execute(TelegramUpdate telegramUpdate, State state) {
+        Long chatId = telegramUpdate.getUpdate().getMessage().getChatId();
+        String message = telegramUpdate.getUpdate().getMessage().getText();
         if (pasahitza.equals(message)) {
             telegramService.sendMessage(chatId, "Pasahitza zuzena da!");
             telegramService.sendMessage(chatId, messageFactory.zerGehitu(state));

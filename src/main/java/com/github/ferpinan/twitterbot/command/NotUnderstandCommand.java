@@ -22,8 +22,8 @@ public class NotUnderstandCommand implements Command{
     private final MessageFactory messageFactory;
 
     @Override
-    public State execute(TelegramUpdate update, State state) {
-        Long chatId = update.getMessage().getChatId();
+    public State execute(TelegramUpdate telegramUpdate, State state) {
+        Long chatId = telegramUpdate.getUpdate().getMessage().getChatId();
         telegramService.sendMessage(chatId, "Barkatu baina ez dakir zertaz ari zaren.");
         return state;
     }

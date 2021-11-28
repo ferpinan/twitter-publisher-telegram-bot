@@ -30,9 +30,9 @@ public class GifReaderCommand implements Command{
     private final MessageFactory messageFactory;
 
     @Override
-    public State execute(TelegramUpdate update, State state) {
-        Long chatId = update.getMessage().getChatId();
-        Document gifDocument = update.getMessage().getDocument();
+    public State execute(TelegramUpdate telegramUpdate, State state) {
+        Long chatId = telegramUpdate.getUpdate().getMessage().getChatId();
+        Document gifDocument = telegramUpdate.getUpdate().getMessage().getDocument();
 
         if(gifDocument==null || StringUtils.isEmpty(gifDocument.getFileId())){
             return finishCommand(state, chatId, GIF_NOT_RECEIVED);

@@ -21,6 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.AbstractMap;
@@ -85,22 +86,22 @@ class CommandDispatcherTest {
     @ParameterizedTest
     @MethodSource("stringIntAndListProvider")
     void shouldCallAwaitTextCommandWhenCommandIsTextAndStateIsAwaitCommand(StateEnum stateEnum, String messageStr, String commandStr) {
-        TelegramUpdate update = new TelegramUpdate();
+        TelegramUpdate telegramUpdate = TelegramUpdate.builder().update(new Update()).build();
         Message message = new Message();
         message.setFrom(new User());
         message.setText(messageStr);
-        update.setMessage(message);
+        telegramUpdate.getUpdate().setMessage(message);
 
         State state = new State();
         state.setCurrentState(stateEnum);
         doReturn(state).when(commandDispatcher).initUserState(any());
         doNothing().when(commandDispatcher).saveUserState(any(), any());
 
-        commandDispatcher.mainMethod(update);
+        commandDispatcher.mainMethod(telegramUpdate);
 
         Command command = commandsMap.get(commandStr);
         if(command!=null) {
-            verify(command).execute(update, state);
+            verify(command).execute(telegramUpdate, state);
         }
 
         verifyNoMoreInteractions(startCommand, notStartedCommand, passwordCheckerCommand, finishCommand, messageReaderCommand, gifReaderCommand, photoReaderCommand, awaitTextCommand, awaitGifCommand, awaitPhotosCommand);

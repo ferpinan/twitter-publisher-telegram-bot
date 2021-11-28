@@ -19,8 +19,8 @@ public class FinishCommand implements Command{
     private final TwitterService twitterService;
 
     @Override
-    public State execute(TelegramUpdate update, State state) {
-        Long chatId = update.getMessage().getChatId();
+    public State execute(TelegramUpdate telegramUpdate, State state) {
+        Long chatId = telegramUpdate.getUpdate().getMessage().getChatId();
         telegramService.sendMessage(chatId, "Mezua txiokatu da!");
 
         try {
@@ -29,7 +29,6 @@ public class FinishCommand implements Command{
             e.printStackTrace();
         }
 
-        state.update(StateEnum.NOT_STARTED);
-        return state;
+        return new State();
     }
 }

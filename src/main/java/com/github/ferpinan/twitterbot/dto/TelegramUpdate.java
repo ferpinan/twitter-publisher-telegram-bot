@@ -1,12 +1,17 @@
 package com.github.ferpinan.twitterbot.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class TelegramUpdate extends Update {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class TelegramUpdate {
 
+    private Update update;
     private Boolean isLastUpdate;
 }

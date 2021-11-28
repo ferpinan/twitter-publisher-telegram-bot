@@ -21,12 +21,12 @@ public class TwitterService {
         StatusUpdate statusUpdate;
         statusUpdate = initStatusUpdate(state);
 
-        if(!state.getPhotos().isEmpty()){
+        if (!state.getPhotos().isEmpty()) {
             long[] photoIdArray = uploadPhotos(state.getPhotos());
             statusUpdate.setMediaIds(photoIdArray);
         }
 
-        if(state.getPhotos().isEmpty() && state.getGif()!=null){
+        if (state.getPhotos().isEmpty() && state.getGif() != null) {
             Long gifMediaId = uploadDocument(state.getGif());
             statusUpdate.setMediaIds(gifMediaId);
         }
@@ -35,7 +35,7 @@ public class TwitterService {
     }
 
     private StatusUpdate initStatusUpdate(State state) {
-        if(state.getMessage()==null){
+        if (state.getMessage() == null) {
             return new StatusUpdate("");
         }
         return new StatusUpdate(state.getMessage());
@@ -44,18 +44,14 @@ public class TwitterService {
     private long[] uploadPhotos(List<File> photoList) throws TwitterException, FileNotFoundException {
 
         long[] photoIdArray = new long[photoList.size()];
-        for (int i=0; i<photoList.size(); i++) {
+        for (int i = 0; i < photoList.size(); i++) {
             File file = photoList.get(i);
             UploadedMedia media;
-            if (file.length() > 1000000) {//did this because for files above 1mb you need to use chunked uploading
-                media = twitter.uploadMediaChunked(file.getName(), new BufferedInputStream(new FileInputStream(file)));
-            } else {
-                media = twitter.uploadMedia(file);
-            }
+            media = twitter.uploadMedia(file);
             photoIdArray[i] = media.getMediaId();
         }
 
-        if (photoIdArray.length==0) {
+        if (photoIdArray.length == 0) {
             return null;
         }
         return photoIdArray;

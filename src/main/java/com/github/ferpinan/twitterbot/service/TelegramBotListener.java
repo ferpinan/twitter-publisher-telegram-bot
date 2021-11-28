@@ -22,18 +22,13 @@ public class TelegramBotListener extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(final Update update) {
-        TelegramUpdate telegramUpdate = (TelegramUpdate)update;
-        telegramUpdate.setIsLastUpdate(true);
+        TelegramUpdate telegramUpdate = TelegramUpdate.builder().update(update).isLastUpdate(true).build();
         commandDispatcher.mainMethod(telegramUpdate);
     }
 
     @Override
     public void onUpdatesReceived(List<Update> updates) {
-        List<TelegramUpdate> telegramUpdates = updates.stream().map(update -> {
-            TelegramUpdate telegramUpdate = (TelegramUpdate) update;
-            telegramUpdate.setIsLastUpdate(false);
-            return telegramUpdate;
-        }).toList();
+        List<TelegramUpdate> telegramUpdates = updates.stream().map(update -> TelegramUpdate.builder().update(update).isLastUpdate(false).build()).toList();
         telegramUpdates.get(telegramUpdates.size()-1).setIsLastUpdate(true);
         for(TelegramUpdate telegramUpdate: telegramUpdates) {
             commandDispatcher.mainMethod(telegramUpdate);

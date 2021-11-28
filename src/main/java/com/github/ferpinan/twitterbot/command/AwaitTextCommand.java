@@ -15,8 +15,8 @@ public class AwaitTextCommand implements Command{
     private final TelegramService telegramService;
 
     @Override
-    public State execute(TelegramUpdate update, State state) {
-        Long chatId = update.getMessage().getChatId();
+    public State execute(TelegramUpdate telegramUpdate, State state) {
+        Long chatId = telegramUpdate.getUpdate().getMessage().getChatId();
         telegramService.sendMessage(chatId, "Sartu txioaren textua.");
         state.update(StateEnum.AWAIT_TEXT);
         return state;

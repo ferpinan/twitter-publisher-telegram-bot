@@ -15,6 +15,7 @@ import com.github.ferpinan.twitterbot.dto.TelegramUpdate;
 import com.github.ferpinan.twitterbot.state.State;
 import com.github.ferpinan.twitterbot.state.StateEnum;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.AbstractMap;
@@ -40,7 +41,7 @@ public class CommandDispatcher {
 
     private Map<StateEnum, Command> commandsMap;
 
-    public void mainMethod(TelegramUpdate update) {
+    public void mainMethod(TelegramUpdate telegramUpdate) {
         commandsMap = Map.ofEntries(
                 new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.STARTED, startCommand),
                 new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.NOT_STARTED, notStartedCommand),
@@ -56,14 +57,14 @@ public class CommandDispatcher {
         );
         // Esta función se invocará cuando nuestro bot reciba un mensaje
 
-        Long userId = update.getMessage().getFrom().getId();
+        Long userId = telegramUpdate.getUpdate().getMessage().getFrom().getId();
 
         State state = initUserState(userId);
 
         // Se obtiene el mensaje escrito por el usuario
-        final String messageTextReceived = update.getMessage().getText();
+        final String messageTextReceived = telegramUpdate.getUpdate().getMessage().getText();
 
-        if(messageTextReceived.startsWith("/")){
+        if(StringUtils.isNotEmpty(messageTextReceived) && messageTextReceived.startsWith("/")){
             if (state.is(StateEnum.NOT_STARTED) && !"/hasi".equals(messageTextReceived)) {
                 state.setCurrentState(StateEnum.NOT_STARTED);
             }else if(state.is(StateEnum.NOT_STARTED) && "/hasi".equals(messageTextReceived)){
@@ -81,7 +82,7 @@ public class CommandDispatcher {
 
         Command command = commandsMap.get(state.getCurrentState());
         if(command!=null) {
-            State newState = command.execute(update, state);
+            State newState = command.execute(telegramUpdate, state);
             saveUserState(userId, newState);
         }
 

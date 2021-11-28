@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +22,6 @@ import static com.github.ferpinan.twitterbot.command.PhotoReaderCommand.GIF_ALRE
 import static com.github.ferpinan.twitterbot.command.PhotoReaderCommand.PHOTOS_NOT_RECEIVED;
 import static com.github.ferpinan.twitterbot.command.PhotoReaderCommand.PHOTOS_SAVED;
 import static com.github.ferpinan.twitterbot.command.PhotoReaderCommand.PHOTOS_ALREADY_UPLOADED;
-import static com.github.ferpinan.twitterbot.command.PhotoReaderCommand.ERROR;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -45,7 +44,9 @@ class PhotoReaderCommandTest {
     private MessageFactory messageFactory;
 
     @Mock
-    private TelegramUpdate update;
+    private TelegramUpdate telegramUpdate;
+    @Mock
+    private Update update;
     @Mock
     private Message message;
 
@@ -56,8 +57,9 @@ class PhotoReaderCommandTest {
         MockitoAnnotations.openMocks(this);
 
         state = new State();
+        when(telegramUpdate.getUpdate()).thenReturn(update);
         when(update.getMessage()).thenReturn(message);
-        when(update.getIsLastUpdate()).thenReturn(true);
+        when(telegramUpdate.getIsLastUpdate()).thenReturn(true);
         when(message.getChatId()).thenReturn(CHAT_ID);
         when(messageFactory.zerGehitu(any())).thenReturn(ZER_GEHITU_MSG);
     }
@@ -71,7 +73,7 @@ class PhotoReaderCommandTest {
         File fileMock = mock(File.class);
         when(telegramService.downloadFile(any(), any(), any())).thenReturn(fileMock);
 
-        State result = photoReaderCommand.execute(update, state);
+        State result = photoReaderCommand.execute(telegramUpdate, state);
 
         verify(telegramService).downloadFile(FILE_ID,FILE_ID, "jpg");
         verify(telegramService).sendMessage(CHAT_ID, PHOTOS_SAVED);
@@ -89,7 +91,7 @@ class PhotoReaderCommandTest {
     void shouldNotDownloadFileAndSendErrorMessagesWhenPhotoIsNull() {
         when(message.getPhoto()).thenReturn(null);
 
-        State result = photoReaderCommand.execute(update, state);
+        State result = photoReaderCommand.execute(telegramUpdate, state);
 
         verify(telegramService).sendMessage(CHAT_ID, PHOTOS_NOT_RECEIVED);
         verify(telegramService).sendMessage(CHAT_ID, ZER_GEHITU_MSG);
@@ -111,7 +113,7 @@ class PhotoReaderCommandTest {
         state.addPhoto(fileMock);
         when(fileMock.getName()).thenReturn(FILE_ID);
 
-        State result = photoReaderCommand.execute(update, state);
+        State result = photoReaderCommand.execute(telegramUpdate, state);
 
         verify(telegramService).downloadFile(FILE_ID,FILE_ID, "jpg");
         verify(telegramService).sendMessage(CHAT_ID, PHOTOS_ALREADY_UPLOADED);
@@ -134,7 +136,7 @@ class PhotoReaderCommandTest {
         File fileMock = mock(File.class);
         state.setGif(fileMock);
 
-        State result = photoReaderCommand.execute(update, state);
+        State result = photoReaderCommand.execute(telegramUpdate, state);
 
         verify(telegramService).sendMessage(CHAT_ID, GIF_ALREADY_UPLOADED);
         verify(telegramService).sendMessage(CHAT_ID, ZER_GEHITU_MSG);
