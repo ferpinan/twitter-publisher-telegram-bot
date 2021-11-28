@@ -50,6 +50,10 @@ public class State {
         return photos;
     }
 
+    public boolean photoExists(File newFile){
+        return photos.stream().anyMatch(file -> file.getName().equals(newFile.getName()));
+    }
+
     public StateEnum getCurrentState() {
         return currentState;
     }

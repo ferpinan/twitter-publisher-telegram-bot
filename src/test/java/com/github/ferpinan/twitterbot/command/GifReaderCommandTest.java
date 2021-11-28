@@ -15,13 +15,11 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 
-import static com.github.ferpinan.twitterbot.command.GifReaderCommand.DAGOENEKO_IGO_DITUZU_ARGAZKIAK_ETA_EZIN_DA_GIF_IK_TXERTATU;
-import static com.github.ferpinan.twitterbot.command.GifReaderCommand.DAGOENEKO_IGO_DUZU_GIF_BAT;
-import static com.github.ferpinan.twitterbot.command.GifReaderCommand.EZ_DA_GIFIK_JASO_MSG;
-import static com.github.ferpinan.twitterbot.command.GifReaderCommand.GORDE_DA_GIFA_MSG;
+import static com.github.ferpinan.twitterbot.command.GifReaderCommand.PHOTOS_ALREADY_UPLOADED;
+import static com.github.ferpinan.twitterbot.command.GifReaderCommand.GIF_ALREADY_UPLOADED;
+import static com.github.ferpinan.twitterbot.command.GifReaderCommand.GIF_NOT_RECEIVED;
+import static com.github.ferpinan.twitterbot.command.GifReaderCommand.GIF_SAVED;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -70,7 +68,7 @@ class GifReaderCommandTest {
         State result = gifReaderCommand.execute(update, state);
 
         verify(telegramService).downloadFile(FILE_ID);
-        verify(telegramService).sendMessage(CHAT_ID, GORDE_DA_GIFA_MSG);
+        verify(telegramService).sendMessage(CHAT_ID, GIF_SAVED);
         verify(telegramService).sendMessage(CHAT_ID, ZER_GEHITU_MSG);
         verifyNoMoreInteractions(telegramService);
         verify(messageFactory).zerGehitu(state);
@@ -87,7 +85,7 @@ class GifReaderCommandTest {
 
         State result = gifReaderCommand.execute(update, state);
 
-        verify(telegramService).sendMessage(CHAT_ID, EZ_DA_GIFIK_JASO_MSG);
+        verify(telegramService).sendMessage(CHAT_ID, GIF_NOT_RECEIVED);
         verify(telegramService).sendMessage(CHAT_ID, ZER_GEHITU_MSG);
         verifyNoMoreInteractions(telegramService);
         verify(messageFactory).zerGehitu(state);
@@ -108,7 +106,7 @@ class GifReaderCommandTest {
 
         State result = gifReaderCommand.execute(update, state);
 
-        verify(telegramService).sendMessage(CHAT_ID, DAGOENEKO_IGO_DUZU_GIF_BAT);
+        verify(telegramService).sendMessage(CHAT_ID, GIF_ALREADY_UPLOADED);
         verify(telegramService).sendMessage(CHAT_ID, ZER_GEHITU_MSG);
         verifyNoMoreInteractions(telegramService);
         verify(messageFactory).zerGehitu(state);
@@ -130,7 +128,7 @@ class GifReaderCommandTest {
 
         State result = gifReaderCommand.execute(update, state);
 
-        verify(telegramService).sendMessage(CHAT_ID, DAGOENEKO_IGO_DITUZU_ARGAZKIAK_ETA_EZIN_DA_GIF_IK_TXERTATU);
+        verify(telegramService).sendMessage(CHAT_ID, PHOTOS_ALREADY_UPLOADED);
         verify(telegramService).sendMessage(CHAT_ID, ZER_GEHITU_MSG);
         verifyNoMoreInteractions(telegramService);
         verify(messageFactory).zerGehitu(state);

@@ -20,11 +20,11 @@ import java.util.Objects;
 @Log4j2
 public class GifReaderCommand implements Command{
 
-    protected static final String GORDE_DA_GIFA_MSG = "Gorde da gif-a.";
-    protected static final String DAGOENEKO_IGO_DUZU_GIF_BAT = "Dagoeneko igo duzu gif bat.";
-    protected static final String EZ_DA_GIFIK_JASO_MSG = "Ez da gifik jaso.";
-    public static final String DAGOENEKO_IGO_DITUZU_ARGAZKIAK_ETA_EZIN_DA_GIF_IK_TXERTATU = "Dagoeneko igo dituzu argazkiak eta ezin da gif-ik txertatu";
-    public static final String ERROR_BAT_GERTATU_DA_GIF_A_TXERTATZERAKOAN = "Error bat gertatu da gif-a txertatzerakoan";
+    protected static final String GIF_SAVED = "Gorde da gif-a.";
+    protected static final String GIF_ALREADY_UPLOADED = "Dagoeneko igo duzu gif bat.";
+    protected static final String GIF_NOT_RECEIVED = "Ez da gifik jaso.";
+    protected static final String PHOTOS_ALREADY_UPLOADED = "Dagoeneko igo dituzu argazkiak eta ezin da gif-ik txertatu";
+    protected static final String ERROR = "Error bat gertatu da gif-a txertatzerakoan";
 
     private final TelegramService telegramService;
     private final MessageFactory messageFactory;
@@ -32,27 +32,27 @@ public class GifReaderCommand implements Command{
     @Override
     public State execute(TelegramUpdate update, State state) {
         Long chatId = update.getMessage().getChatId();
-        Document document = update.getMessage().getDocument();
+        Document gifDocument = update.getMessage().getDocument();
 
-        if(document==null || StringUtils.isEmpty(document.getFileId())){
-            return finishCommand(state, chatId, EZ_DA_GIFIK_JASO_MSG);
+        if(gifDocument==null || StringUtils.isEmpty(gifDocument.getFileId())){
+            return finishCommand(state, chatId, GIF_NOT_RECEIVED);
         }
         if(Objects.nonNull(state.getGif())){
-            return finishCommand(state, chatId, DAGOENEKO_IGO_DUZU_GIF_BAT);
+            return finishCommand(state, chatId, GIF_ALREADY_UPLOADED);
         }
         if(Objects.nonNull(state.getPhotos()) && !state.getPhotos().isEmpty()){
-            return finishCommand(state, chatId, DAGOENEKO_IGO_DITUZU_ARGAZKIAK_ETA_EZIN_DA_GIF_IK_TXERTATU);
+            return finishCommand(state, chatId, PHOTOS_ALREADY_UPLOADED);
         }
 
         try {
-            File gif = telegramService.downloadFile(document.getFileId());
-            state.setGif(gif);
+            File gifFile = telegramService.downloadFile(gifDocument.getFileId());
+            state.setGif(gifFile);
         } catch (IOException e) {
             log.error(e.getMessage());
-            return finishCommand(state, chatId, ERROR_BAT_GERTATU_DA_GIF_A_TXERTATZERAKOAN);
+            return finishCommand(state, chatId, ERROR);
         }
 
-        return finishCommand(state, chatId, GORDE_DA_GIFA_MSG);
+        return finishCommand(state, chatId, GIF_SAVED);
     }
 
     private State finishCommand(State state, Long chatId, String message) {
