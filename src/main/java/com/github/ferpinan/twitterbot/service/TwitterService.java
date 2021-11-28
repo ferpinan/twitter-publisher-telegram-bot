@@ -24,10 +24,11 @@ public class TwitterService {
         if (!state.getPhotos().isEmpty()) {
             long[] photoIdArray = uploadPhotos(state.getPhotos());
             statusUpdate.setMediaIds(photoIdArray);
-        }
-
-        if (state.getPhotos().isEmpty() && state.getGif() != null) {
+        }else if (state.getGif() != null) {
             Long gifMediaId = uploadDocument(state.getGif());
+            statusUpdate.setMediaIds(gifMediaId);
+        }else if(state.getVideo()!=null){
+            Long gifMediaId = uploadDocument(state.getVideo());
             statusUpdate.setMediaIds(gifMediaId);
         }
 
@@ -41,7 +42,7 @@ public class TwitterService {
         return new StatusUpdate(state.getMessage());
     }
 
-    private long[] uploadPhotos(List<File> photoList) throws TwitterException, FileNotFoundException {
+    private long[] uploadPhotos(List<File> photoList) throws TwitterException {
 
         long[] photoIdArray = new long[photoList.size()];
         for (int i = 0; i < photoList.size(); i++) {

@@ -13,4 +13,8 @@ public class StateUtils {
     public static boolean isGifAttached(State state) {
         return state.getGif() != null;
     }
+
+    public static boolean isVideoAttached(State state) {
+        return state.getVideo() != null;
+    }
 }

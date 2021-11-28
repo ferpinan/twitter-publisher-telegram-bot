@@ -1,16 +1,6 @@
 package com.github.ferpinan.twitterbot.service;
 
-import com.github.ferpinan.twitterbot.command.AwaitGifCommand;
-import com.github.ferpinan.twitterbot.command.AwaitPhotosCommand;
-import com.github.ferpinan.twitterbot.command.AwaitTextCommand;
-import com.github.ferpinan.twitterbot.command.Command;
-import com.github.ferpinan.twitterbot.command.GifReaderCommand;
-import com.github.ferpinan.twitterbot.command.FinishCommand;
-import com.github.ferpinan.twitterbot.command.MessageReaderCommand;
-import com.github.ferpinan.twitterbot.command.NotStartedCommand;
-import com.github.ferpinan.twitterbot.command.PasswordCheckerCommand;
-import com.github.ferpinan.twitterbot.command.PhotoReaderCommand;
-import com.github.ferpinan.twitterbot.command.StartCommand;
+import com.github.ferpinan.twitterbot.command.*;
 import com.github.ferpinan.twitterbot.dto.TelegramUpdate;
 import com.github.ferpinan.twitterbot.state.State;
 import com.github.ferpinan.twitterbot.state.StateEnum;
@@ -33,9 +23,11 @@ public class CommandDispatcher {
     private final MessageReaderCommand messageReaderCommand;
     private final GifReaderCommand gifReaderCommand;
     private final PhotoReaderCommand photoReaderCommand;
+    private final VideoReaderCommand videoReaderCommand;
     private final AwaitTextCommand awaitTextCommand;
     private final AwaitGifCommand awaitGifCommand;
     private final AwaitPhotosCommand awaitPhotosCommand;
+    private final AwaitVideoCommand awaitVideoCommand;
 
     private Map<Long, State> stateMap;
 
@@ -51,9 +43,11 @@ public class CommandDispatcher {
                 new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.RECEIVED_TEXT_COMMAND, awaitTextCommand),
                 new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.RECEIVED_GIF_COMMAND, awaitGifCommand),
                 new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.RECEIVED_PHOTOS_COMMAND, awaitPhotosCommand),
+                new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.RECEIVED_VIDEO_COMMAND, awaitVideoCommand),
                 new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.AWAIT_TEXT, messageReaderCommand),
                 new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.AWAIT_GIF, gifReaderCommand),
-                new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.AWAIT_PHOTOS, photoReaderCommand)
+                new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.AWAIT_PHOTOS, photoReaderCommand),
+                new AbstractMap.SimpleEntry<StateEnum, Command>(StateEnum.AWAIT_VIDEO, videoReaderCommand)
         );
         // Esta función se invocará cuando nuestro bot reciba un mensaje
 
@@ -75,6 +69,8 @@ public class CommandDispatcher {
                 state.setCurrentState(StateEnum.RECEIVED_GIF_COMMAND);
             }else if ("/argazkiak".equals(messageTextReceived) && state.is(StateEnum.AWAIT_COMMAND)) {
                 state.setCurrentState(StateEnum.RECEIVED_PHOTOS_COMMAND);
+            }else if ("/bideoa".equals(messageTextReceived) && state.is(StateEnum.AWAIT_COMMAND)) {
+                state.setCurrentState(StateEnum.RECEIVED_VIDEO_COMMAND);
             }else if ("/bukatu".equals(messageTextReceived) && state.is(StateEnum.AWAIT_COMMAND)) {
                 state.setCurrentState(StateEnum.RECEIVED_FINISHED);
             }
