@@ -28,6 +28,7 @@ public class PhotoReaderCommand implements Command{
     protected static final String PHOTOS_ALREADY_UPLOADED = "Dagoeneko igo duzu argazki hori.";
     protected static final String PHOTOS_NOT_RECEIVED = "Ez da argazkirik jaso.";
     protected static final String GIF_ALREADY_UPLOADED = "Dagoeneko igo duzu gif bat eta ezin da argazkirik txertatu";
+    protected static final String VIDEO_ALREADY_UPLOADED = "Dagoeneko igo duzu bideo bat eta ezin da bideorik txertatu";
     protected static final String ERROR = "Error bat gertatu da argazkiak txertatzerakoan";
 
     private final TelegramService telegramService;
@@ -39,6 +40,10 @@ public class PhotoReaderCommand implements Command{
 
         if(Objects.nonNull(state.getGif())){
             return finishCommand(state, chatId, GIF_ALREADY_UPLOADED, telegramUpdate);
+        }
+
+        if(Objects.nonNull(state.getVideo())){
+            return finishCommand(state, chatId, VIDEO_ALREADY_UPLOADED, telegramUpdate);
         }
 
         List<PhotoSize> photoSizeDocument = telegramUpdate.getUpdate().getMessage().getPhoto();

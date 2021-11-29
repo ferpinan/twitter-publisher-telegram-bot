@@ -1,16 +1,6 @@
 package com.github.ferpinan.twitterbot.service;
 
-import com.github.ferpinan.twitterbot.command.AwaitGifCommand;
-import com.github.ferpinan.twitterbot.command.AwaitPhotosCommand;
-import com.github.ferpinan.twitterbot.command.AwaitTextCommand;
-import com.github.ferpinan.twitterbot.command.Command;
-import com.github.ferpinan.twitterbot.command.FinishCommand;
-import com.github.ferpinan.twitterbot.command.GifReaderCommand;
-import com.github.ferpinan.twitterbot.command.MessageReaderCommand;
-import com.github.ferpinan.twitterbot.command.NotStartedCommand;
-import com.github.ferpinan.twitterbot.command.PasswordCheckerCommand;
-import com.github.ferpinan.twitterbot.command.PhotoReaderCommand;
-import com.github.ferpinan.twitterbot.command.StartCommand;
+import com.github.ferpinan.twitterbot.command.*;
 import com.github.ferpinan.twitterbot.dto.TelegramUpdate;
 import com.github.ferpinan.twitterbot.state.State;
 import com.github.ferpinan.twitterbot.state.StateEnum;
@@ -55,11 +45,15 @@ class CommandDispatcherTest {
     @Mock
     private PhotoReaderCommand photoReaderCommand;
     @Mock
+    private VideoReaderCommand videoReaderCommand;
+    @Mock
     private AwaitTextCommand awaitTextCommand;
     @Mock
     private AwaitGifCommand awaitGifCommand;
     @Mock
     private AwaitPhotosCommand awaitPhotosCommand;
+    @Mock
+    private AwaitVideoCommand awaitVideoCommand;
 
     private Map<String, Command> commandsMap;
 
@@ -67,7 +61,7 @@ class CommandDispatcherTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        commandDispatcher = spy(new CommandDispatcher(startCommand, notStartedCommand, passwordCheckerCommand, finishCommand, messageReaderCommand, gifReaderCommand, photoReaderCommand, awaitTextCommand, awaitGifCommand, awaitPhotosCommand));
+        commandDispatcher = spy(new CommandDispatcher(startCommand, notStartedCommand, passwordCheckerCommand, finishCommand, messageReaderCommand, gifReaderCommand, photoReaderCommand, videoReaderCommand, awaitTextCommand, awaitGifCommand, awaitPhotosCommand, awaitVideoCommand));
 
         commandsMap = Map.ofEntries(
                 new AbstractMap.SimpleEntry<String, Command>("startCommand", startCommand),
@@ -77,9 +71,11 @@ class CommandDispatcherTest {
                 new AbstractMap.SimpleEntry<String, Command>("messageReaderCommand", messageReaderCommand),
                 new AbstractMap.SimpleEntry<String, Command>("gifReaderCommand", gifReaderCommand),
                 new AbstractMap.SimpleEntry<String, Command>("photoReaderCommand", photoReaderCommand),
+                new AbstractMap.SimpleEntry<String, Command>("videoReaderCommand", videoReaderCommand),
                 new AbstractMap.SimpleEntry<String, Command>("awaitTextCommand", awaitTextCommand),
                 new AbstractMap.SimpleEntry<String, Command>("awaitGifCommand", awaitGifCommand),
-                new AbstractMap.SimpleEntry<String, Command>("awaitPhotosCommand", awaitPhotosCommand)
+                new AbstractMap.SimpleEntry<String, Command>("awaitPhotosCommand", awaitPhotosCommand),
+                new AbstractMap.SimpleEntry<String, Command>("awaitVideoCommand", awaitVideoCommand)
         );
     }
 
@@ -114,6 +110,7 @@ class CommandDispatcherTest {
                 arguments(StateEnum.NOT_STARTED, "/textua", "notStartedCommand"),
                 arguments(StateEnum.NOT_STARTED, "/gif", "notStartedCommand"),
                 arguments(StateEnum.NOT_STARTED, "/argazkiak", "notStartedCommand"),
+                arguments(StateEnum.NOT_STARTED, "/bideoa", "notStartedCommand"),
                 arguments(StateEnum.NOT_STARTED, "/bukatu", "notStartedCommand"),
 
                 arguments(StateEnum.AWAIT_PASSWORD, "asdf", "passwordCheckerCommand"),
@@ -121,6 +118,7 @@ class CommandDispatcherTest {
                 arguments(StateEnum.AWAIT_PASSWORD, "/textua", "passwordCheckerCommand"),
                 arguments(StateEnum.AWAIT_PASSWORD, "/gif", "passwordCheckerCommand"),
                 arguments(StateEnum.AWAIT_PASSWORD, "/argazkiak", "passwordCheckerCommand"),
+                arguments(StateEnum.AWAIT_PASSWORD, "/bideoa", "passwordCheckerCommand"),
                 arguments(StateEnum.AWAIT_PASSWORD, "/bukatu", "passwordCheckerCommand"),
 
                 arguments(StateEnum.PASSWORD_KO, "asdf", "passwordCheckerCommand"),
@@ -128,6 +126,7 @@ class CommandDispatcherTest {
                 arguments(StateEnum.PASSWORD_KO, "/textua", "passwordCheckerCommand"),
                 arguments(StateEnum.PASSWORD_KO, "/gif", "passwordCheckerCommand"),
                 arguments(StateEnum.PASSWORD_KO, "/argazkiak", "passwordCheckerCommand"),
+                arguments(StateEnum.PASSWORD_KO, "/bideoa", "passwordCheckerCommand"),
                 arguments(StateEnum.PASSWORD_KO, "/bukatu", "passwordCheckerCommand"),
 
                 arguments(StateEnum.AWAIT_COMMAND, "asdf", ""),
@@ -135,6 +134,7 @@ class CommandDispatcherTest {
                 arguments(StateEnum.AWAIT_COMMAND, "/textua", "awaitTextCommand"),
                 arguments(StateEnum.AWAIT_COMMAND, "/gif", "awaitGifCommand"),
                 arguments(StateEnum.AWAIT_COMMAND, "/argazkiak", "awaitPhotosCommand"),
+                arguments(StateEnum.AWAIT_COMMAND, "/bideoa", "awaitVideoCommand"),
                 arguments(StateEnum.AWAIT_COMMAND, "/bukatu", "finishCommand"),
 
                 arguments(StateEnum.AWAIT_TEXT, "asdf", "messageReaderCommand"),
@@ -142,6 +142,7 @@ class CommandDispatcherTest {
                 arguments(StateEnum.AWAIT_TEXT, "/textua", "messageReaderCommand"),
                 arguments(StateEnum.AWAIT_TEXT, "/gif", "messageReaderCommand"),
                 arguments(StateEnum.AWAIT_TEXT, "/argazkiak", "messageReaderCommand"),
+                arguments(StateEnum.AWAIT_TEXT, "/bideoa", "messageReaderCommand"),
                 arguments(StateEnum.AWAIT_TEXT, "/bukatu", "messageReaderCommand"),
 
                 arguments(StateEnum.AWAIT_GIF, "asdf", "gifReaderCommand"),
@@ -149,6 +150,7 @@ class CommandDispatcherTest {
                 arguments(StateEnum.AWAIT_GIF, "/textua", "gifReaderCommand"),
                 arguments(StateEnum.AWAIT_GIF, "/gif", "gifReaderCommand"),
                 arguments(StateEnum.AWAIT_GIF, "/argazkiak", "gifReaderCommand"),
+                arguments(StateEnum.AWAIT_GIF, "/bideoa", "gifReaderCommand"),
                 arguments(StateEnum.AWAIT_GIF, "/bukatu", "gifReaderCommand"),
 
                 arguments(StateEnum.AWAIT_PHOTOS, "asdf", "photoReaderCommand"),
@@ -156,7 +158,16 @@ class CommandDispatcherTest {
                 arguments(StateEnum.AWAIT_PHOTOS, "/textua", "photoReaderCommand"),
                 arguments(StateEnum.AWAIT_PHOTOS, "/gif", "photoReaderCommand"),
                 arguments(StateEnum.AWAIT_PHOTOS, "/argazkiak", "photoReaderCommand"),
-                arguments(StateEnum.AWAIT_PHOTOS, "/bukatu", "photoReaderCommand")
+                arguments(StateEnum.AWAIT_PHOTOS, "/bideoa", "photoReaderCommand"),
+                arguments(StateEnum.AWAIT_PHOTOS, "/bukatu", "photoReaderCommand"),
+
+                arguments(StateEnum.AWAIT_VIDEO, "asdf", "videoReaderCommand"),
+                arguments(StateEnum.AWAIT_VIDEO, "/hasi", "videoReaderCommand"),
+                arguments(StateEnum.AWAIT_VIDEO, "/textua", "videoReaderCommand"),
+                arguments(StateEnum.AWAIT_VIDEO, "/gif", "videoReaderCommand"),
+                arguments(StateEnum.AWAIT_VIDEO, "/argazkiak", "videoReaderCommand"),
+                arguments(StateEnum.AWAIT_VIDEO, "/bideoa", "videoReaderCommand"),
+                arguments(StateEnum.AWAIT_VIDEO, "/bukatu", "videoReaderCommand")
         );
     }
 }

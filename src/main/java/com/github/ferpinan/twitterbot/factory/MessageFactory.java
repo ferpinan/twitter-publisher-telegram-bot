@@ -3,8 +3,7 @@ package com.github.ferpinan.twitterbot.factory;
 import com.github.ferpinan.twitterbot.state.State;
 import org.springframework.stereotype.Component;
 
-import static com.github.ferpinan.twitterbot.utils.StateUtils.isGifAttached;
-import static com.github.ferpinan.twitterbot.utils.StateUtils.isPhotosAttached;
+import static com.github.ferpinan.twitterbot.utils.StateUtils.*;
 
 @Component
 public class MessageFactory {
@@ -14,15 +13,15 @@ public class MessageFactory {
         if (state.getMessage() == null) {
             stringBuilder.append("/textua\n");
         }
-        if (!isGifAttached(state) && !isPhotosAttached(state)) {
+        if (!isGifAttached(state) && !isPhotosAttached(state) && !isVideoAttached(state)) {
             stringBuilder.append("/gif\n");
-        }
-        if (!isPhotosAttached(state) && !isGifAttached(state)) {
             stringBuilder.append("/argazkiak\n");
+            stringBuilder.append("/bideoa\n");
         }
         if (state.getMessage() != null
                 || isGifAttached(state)
-                || isPhotosAttached(state)) {
+                || isPhotosAttached(state)
+                || isVideoAttached(state)) {
             stringBuilder.append("/bukatu\n");
         }
         return stringBuilder.toString();

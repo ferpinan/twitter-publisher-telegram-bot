@@ -1,9 +1,12 @@
 package com.github.ferpinan.twitterbot.state;
 
+import lombok.Data;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class State {
 
     public State() {
@@ -11,12 +14,14 @@ public class State {
         message = null;
         gif = null;
         photos = new ArrayList<>();
+        video = null;
     }
 
     private StateEnum currentState;
     private String message;
     private File gif;
     private List<File> photos;
+    private File video;
 
     public void update(StateEnum newState){
         currentState = newState;
@@ -25,40 +30,15 @@ public class State {
     public boolean is(StateEnum stateEnum){
         return currentState.equals(stateEnum);
     }
-
-    public void setMessage(String message){
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setGif(File gif){
-        this.gif = gif;
-    }
-
-    public File getGif() {
-        return gif;
+    public boolean isNot(StateEnum stateEnum){
+        return !this.is(stateEnum);
     }
 
     public void addPhoto(File document){
         photos.add(document);
     }
 
-    public List<File> getPhotos() {
-        return photos;
-    }
-
     public boolean photoExists(File newFile){
         return photos.stream().anyMatch(file -> file.getName().equals(newFile.getName()));
-    }
-
-    public StateEnum getCurrentState() {
-        return currentState;
-    }
-
-    public void setCurrentState(StateEnum currentState) {
-        this.currentState = currentState;
     }
 }
