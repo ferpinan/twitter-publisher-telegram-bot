@@ -24,6 +24,7 @@ public class GifReaderCommand implements Command{
     protected static final String GIF_ALREADY_UPLOADED = "Dagoeneko igo duzu gif bat.";
     protected static final String GIF_NOT_RECEIVED = "Ez da gifik jaso.";
     protected static final String PHOTOS_ALREADY_UPLOADED = "Dagoeneko igo dituzu argazkiak eta ezin da gif-ik txertatu";
+    protected static final String VIDEO_ALREADY_UPLOADED = "Dagoeneko igo duzu bideo bat eta ezin da gif-ik txertatu";
     protected static final String ERROR = "Error bat gertatu da gif-a txertatzerakoan";
 
     private final TelegramService telegramService;
@@ -32,16 +33,21 @@ public class GifReaderCommand implements Command{
     @Override
     public State execute(TelegramUpdate telegramUpdate, State state) {
         Long chatId = telegramUpdate.getUpdate().getMessage().getChatId();
-        Document gifDocument = telegramUpdate.getUpdate().getMessage().getDocument();
 
-        if(gifDocument==null || StringUtils.isEmpty(gifDocument.getFileId())){
-            return finishCommand(state, chatId, GIF_NOT_RECEIVED);
-        }
         if(Objects.nonNull(state.getGif())){
             return finishCommand(state, chatId, GIF_ALREADY_UPLOADED);
         }
         if(Objects.nonNull(state.getPhotos()) && !state.getPhotos().isEmpty()){
             return finishCommand(state, chatId, PHOTOS_ALREADY_UPLOADED);
+        }
+        if(Objects.nonNull(state.getVideo())){
+            return finishCommand(state, chatId, VIDEO_ALREADY_UPLOADED);
+        }
+
+        Document gifDocument = telegramUpdate.getUpdate().getMessage().getDocument();
+
+        if(gifDocument==null || StringUtils.isEmpty(gifDocument.getFileId())){
+            return finishCommand(state, chatId, GIF_NOT_RECEIVED);
         }
 
         try {

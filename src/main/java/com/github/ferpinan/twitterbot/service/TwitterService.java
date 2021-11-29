@@ -17,7 +17,7 @@ public class TwitterService {
 
     private final Twitter twitter;
 
-    public void tweet(State state) throws FileNotFoundException, TwitterException {
+    public Status tweet(State state) throws FileNotFoundException, TwitterException {
         StatusUpdate statusUpdate;
         statusUpdate = initStatusUpdate(state);
 
@@ -32,7 +32,7 @@ public class TwitterService {
             statusUpdate.setMediaIds(gifMediaId);
         }
 
-        twitter.updateStatus(statusUpdate);
+        return twitter.updateStatus(statusUpdate);
     }
 
     private StatusUpdate initStatusUpdate(State state) {
@@ -64,5 +64,13 @@ public class TwitterService {
             return null;
         }
         return media.getMediaId();
+    }
+
+    public void deleteTweet(Long tweetId) throws TwitterException {
+        twitter.destroyStatus(tweetId);
+    }
+
+    public Status getTweet(Long tweetId) throws TwitterException {
+        return twitter.showStatus(tweetId);
     }
 }

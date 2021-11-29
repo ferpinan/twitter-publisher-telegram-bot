@@ -1,14 +1,14 @@
 telegram:
     bot:
-        username:
-        token:
-        password:
+        username: Twitz3000TxioTestBot
+        token: 2120711006:AAG762ZxohzQUs0mAQll4Q68jdYlolmESP0
+        password: hauDaPasahitza123
 twitter:
     consumerKey:
-        public:
-        secret:
+        public: 2rcBeZDH913fPCP6cDZAUNoQQ
+        secret: AxTrWsLOOzKhD4yGeeOJkhAfJXvyHR0789KhI1ZCwXbNXgIfK7
     accessToken:
-        public:
-        secret:
+        public: 1459136598906388493-vIIbRO8TMRvFTWVKUhrU4LI2k8U5jH
+        secret: UCUH3eKIM1g4LVWfjGmTL9koOe70TCob5DdMRM4TsdnVS
 files:
-    directory: /home/twitter-bot/files
+    directory: C:\workspace\twitter-publisher-telegram-bot\downloadedFiles

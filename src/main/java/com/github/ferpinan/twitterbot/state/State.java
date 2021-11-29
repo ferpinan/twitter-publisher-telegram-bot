@@ -30,6 +30,9 @@ public class State {
     public boolean is(StateEnum stateEnum){
         return currentState.equals(stateEnum);
     }
+    public boolean isNot(StateEnum stateEnum){
+        return !this.is(stateEnum);
+    }
 
     public void addPhoto(File document){
         photos.add(document);

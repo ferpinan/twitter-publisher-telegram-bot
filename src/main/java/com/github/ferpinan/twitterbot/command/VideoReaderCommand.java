@@ -24,7 +24,8 @@ public class VideoReaderCommand implements Command{
     protected static final String VIDEO_SAVED = "Gorde da bideoa.";
     protected static final String VIDEO_ALREADY_UPLOADED = "Dagoeneko igo duzu bideo bat.";
     protected static final String VIDEO_NOT_RECEIVED = "Ez da bideorikik jaso.";
-    protected static final String PHOTOS_ALREADY_UPLOADED = "Dagoeneko igo dituzu argazkiak eta ezin da bideorikk txertatu";
+    protected static final String PHOTOS_ALREADY_UPLOADED = "Dagoeneko igo dituzu argazkiak eta ezin da bideorik txertatu";
+    protected static final String GIF_ALREADY_UPLOADED = "Dagoeneko igo duzu gif bat eta ezin da bideorik txertatu";
     protected static final String ERROR = "Error bat gertatu da bideoa txertatzerakoan";
 
     private final TelegramService telegramService;
@@ -39,6 +40,9 @@ public class VideoReaderCommand implements Command{
         }
         if(Objects.nonNull(state.getVideo())){
             return finishCommand(state, chatId, VIDEO_ALREADY_UPLOADED);
+        }
+        if(Objects.nonNull(state.getGif())){
+            return finishCommand(state, chatId, GIF_ALREADY_UPLOADED);
         }
 
         Video videoDocument = telegramUpdate.getUpdate().getMessage().getVideo();

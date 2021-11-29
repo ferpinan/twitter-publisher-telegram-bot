@@ -21,6 +21,7 @@ import static com.github.ferpinan.twitterbot.command.GifReaderCommand.PHOTOS_ALR
 import static com.github.ferpinan.twitterbot.command.GifReaderCommand.GIF_ALREADY_UPLOADED;
 import static com.github.ferpinan.twitterbot.command.GifReaderCommand.GIF_NOT_RECEIVED;
 import static com.github.ferpinan.twitterbot.command.GifReaderCommand.GIF_SAVED;
+import static com.github.ferpinan.twitterbot.command.GifReaderCommand.VIDEO_ALREADY_UPLOADED;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -101,10 +102,6 @@ class GifReaderCommandTest {
 
     @Test
     void shouldNotDownloadFileAndSendErrorMessagesWhenGifWasAlreadySet() {
-        Document document = mock(Document.class);
-        when(message.getDocument()).thenReturn(document);
-        when(document.getFileId()).thenReturn(FILE_ID);
-
         File fileMock = mock(File.class);
         state.setGif(fileMock);
 
@@ -123,10 +120,6 @@ class GifReaderCommandTest {
 
     @Test
     void shouldNotDownloadFileAndSendErrorMessagesWhenPhotosAreAlreadySet() {
-        Document document = mock(Document.class);
-        when(message.getDocument()).thenReturn(document);
-        when(document.getFileId()).thenReturn(FILE_ID);
-
         File fileMock = mock(File.class);
         state.addPhoto(fileMock);
 
@@ -137,6 +130,22 @@ class GifReaderCommandTest {
         verifyNoMoreInteractions(telegramService);
         verify(messageFactory).zerGehitu(state);
         verifyNoMoreInteractions(messageFactory);
+
+        assertEquals(StateEnum.AWAIT_COMMAND, result.getCurrentState());
+        assertNull(result.getGif());
+    }
+
+    @Test
+    void shouldNotDownloadFileAndSendErrorMessagesWhenVideoIsAlreadySet() {
+        File fileMock = mock(File.class);
+        state.setVideo(fileMock);
+
+        State result = gifReaderCommand.execute(telegramUpdate, state);
+
+        verify(telegramService).sendMessage(CHAT_ID, VIDEO_ALREADY_UPLOADED);
+        verify(telegramService).sendMessage(CHAT_ID, ZER_GEHITU_MSG);
+        verify(messageFactory).zerGehitu(state);
+        verifyNoMoreInteractions(telegramService, messageFactory);
 
         assertEquals(StateEnum.AWAIT_COMMAND, result.getCurrentState());
         assertNull(result.getGif());
